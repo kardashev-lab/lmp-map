@@ -15,7 +15,7 @@ const Map = dynamic(() => import("@/components/Map"), { ssr: false });
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export default function Home() {
-  const [iso, setIso] = useState<IsoKey>("PJM");
+  const [iso, setIso] = useState<IsoKey>("NYISO");
   const [market, setMarket] = useState<Market>("RT");
   const [selectedNode, setSelectedNode] = useState<NodePrice | null>(null);
 
