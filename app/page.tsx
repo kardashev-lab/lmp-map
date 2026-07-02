@@ -96,9 +96,9 @@ export default function Home() {
       {!isLoading && validNodes.length === 0 && !error && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="bg-gray-900/90 rounded-lg px-6 py-4 text-center border border-gray-700">
-            <div className="text-gray-300 font-mono text-sm">No nodes with prices in the last 2 hours</div>
+            <div className="text-gray-300 font-mono text-sm">No live price data for {iso}</div>
             <div className="text-gray-600 text-xs mt-1 font-mono">
-              Run <code className="text-gray-400">python -m ingest.seed_lmp_nodes</code> to seed node coordinates
+              Data refreshes every 5 minutes. Try NYISO, ERCOT, MISO, or SPP.
             </div>
           </div>
         </div>
