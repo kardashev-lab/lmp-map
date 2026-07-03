@@ -5,7 +5,6 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { NodePrice, IsoKey } from "@/lib/types";
 import { ISO_VIEWS } from "@/lib/constants";
-import { priceColor } from "@/lib/colors";
 
 interface Props {
   nodes: NodePrice[];
@@ -19,11 +18,10 @@ const CARTO_STYLE = {
   sources: {
     "carto-dark": {
       type: "raster" as const,
-      tiles: [
-        "https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-      ],
+      tiles: ["https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"],
       tileSize: 256,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
     },
   },
   layers: [
@@ -37,12 +35,48 @@ const CARTO_STYLE = {
   ],
 };
 
+const SOURCE_ID = "lmp-nodes";
+const LAYER_ID = "nodes-circles";
+
+function buildGeoJSON(
+  nodes: NodePrice[],
+  selectedNodeId: string | null
+): GeoJSON.FeatureCollection {
+  return {
+    type: "FeatureCollection",
+    features: nodes
+      .filter((n) => n.lat !== null && n.lng !== null)
+      .map((n) => ({
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [n.lng as number, n.lat as number],
+        },
+        properties: {
+          node_id: n.node_id,
+          name: n.name ?? n.node_id,
+          lmp: n.lmp ?? null,
+          energy: n.energy ?? null,
+          congestion: n.congestion ?? null,
+          loss: n.loss ?? null,
+          ts: n.ts ?? null,
+          zone: n.zone ?? null,
+          selected: n.node_id === selectedNodeId ? 1 : 0,
+        },
+      })),
+  };
+}
+
 export default function Map({ nodes, iso, selectedNodeId, onSelectNode }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
-  const markersRef = useRef<maplibregl.Marker[]>([]);
+  // Stable refs so event handlers always see latest values without re-registering
+  const nodesRef = useRef<NodePrice[]>(nodes);
+  nodesRef.current = nodes;
+  const onSelectRef = useRef(onSelectNode);
+  onSelectRef.current = onSelectNode;
 
-  // Initialize map once
+  // Initialize map and layers once
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
@@ -56,10 +90,87 @@ export default function Map({ nodes, iso, selectedNodeId, onSelectNode }: Props)
     });
 
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
-    map.addControl(
-      new maplibregl.AttributionControl({ compact: true }),
-      "bottom-right"
-    );
+    map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-right");
+
+    map.on("load", () => {
+      map.addSource(SOURCE_ID, {
+        type: "geojson",
+        // promoteId lets us use node_id string as the feature ID for setFeatureState
+        promoteId: "node_id",
+        data: buildGeoJSON(nodesRef.current, null),
+      });
+
+      map.addLayer({
+        id: LAYER_ID,
+        type: "circle",
+        source: SOURCE_ID,
+        paint: {
+          "circle-radius": [
+            "case",
+            ["boolean", ["feature-state", "hover"], false], 8,
+            ["==", ["get", "selected"], 1], 8,
+            5,
+          ],
+          "circle-color": [
+            "case",
+            ["==", ["get", "lmp"], null],
+            "#6b7280",
+            [
+              "interpolate",
+              ["linear"],
+              ["coalesce", ["get", "lmp"], 0],
+              -999, "#22c55e",
+              0,   "#22c55e",
+              50,  "#eab308",
+              150, "#f97316",
+              300, "#dc2626",
+            ],
+          ],
+          "circle-stroke-width": [
+            "case",
+            ["boolean", ["feature-state", "hover"], false], 2,
+            ["==", ["get", "selected"], 1], 2,
+            1.5,
+          ],
+          "circle-stroke-color": [
+            "case",
+            ["boolean", ["feature-state", "hover"], false], "#ffffff",
+            ["==", ["get", "selected"], 1], "#ffffff",
+            "rgba(255,255,255,0.35)",
+          ],
+          "circle-opacity": 0.9,
+        },
+      });
+
+      // Hover via feature state — no DOM manipulation, no re-renders
+      let hoveredId: string | null = null;
+
+      map.on("mouseenter", LAYER_ID, (e) => {
+        map.getCanvas().style.cursor = "pointer";
+        const id = e.features?.[0]?.properties?.node_id as string | undefined;
+        if (!id) return;
+        if (hoveredId && hoveredId !== id) {
+          map.setFeatureState({ source: SOURCE_ID, id: hoveredId }, { hover: false });
+        }
+        hoveredId = id;
+        map.setFeatureState({ source: SOURCE_ID, id }, { hover: true });
+      });
+
+      map.on("mouseleave", LAYER_ID, () => {
+        map.getCanvas().style.cursor = "";
+        if (hoveredId) {
+          map.setFeatureState({ source: SOURCE_ID, id: hoveredId }, { hover: false });
+          hoveredId = null;
+        }
+      });
+
+      map.on("click", LAYER_ID, (e) => {
+        const nodeId = e.features?.[0]?.properties?.node_id as string | undefined;
+        if (!nodeId) return;
+        const node = nodesRef.current.find((n) => n.node_id === nodeId);
+        if (node) onSelectRef.current(node);
+      });
+    });
 
     mapRef.current = map;
 
@@ -77,51 +188,22 @@ export default function Map({ nodes, iso, selectedNodeId, onSelectNode }: Props)
     mapRef.current.flyTo({ center: view.center, zoom: view.zoom, duration: 800 });
   }, [iso]);
 
-  // Render node markers whenever nodes change
+  // Update source data when nodes or selectedNodeId changes — no markers removed
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
-    // Remove existing markers
-    markersRef.current.forEach((m) => m.remove());
-    markersRef.current = [];
+    const apply = () => {
+      const source = map.getSource(SOURCE_ID) as maplibregl.GeoJSONSource | undefined;
+      if (source) source.setData(buildGeoJSON(nodes, selectedNodeId));
+    };
 
-    nodes.forEach((node) => {
-      if (node.lat === null || node.lng === null) return;
-
-      const color = priceColor(node.lmp);
-      const isSelected = node.node_id === selectedNodeId;
-
-      const el = document.createElement("div");
-      el.style.cssText = `
-        width: ${isSelected ? "14px" : "10px"};
-        height: ${isSelected ? "14px" : "10px"};
-        border-radius: 50%;
-        background: ${color};
-        border: ${isSelected ? "2px solid #fff" : "1.5px solid rgba(255,255,255,0.4)"};
-        cursor: pointer;
-        box-shadow: 0 0 ${isSelected ? "8px" : "4px"} ${color}88;
-        transition: transform 0.1s;
-      `;
-
-      el.addEventListener("mouseenter", () => {
-        el.style.transform = "scale(1.4)";
-      });
-      el.addEventListener("mouseleave", () => {
-        el.style.transform = "scale(1)";
-      });
-      el.addEventListener("click", (e) => {
-        e.stopPropagation();
-        onSelectNode(node);
-      });
-
-      const marker = new maplibregl.Marker({ element: el })
-        .setLngLat([node.lng, node.lat])
-        .addTo(map);
-
-      markersRef.current.push(marker);
-    });
-  }, [nodes, selectedNodeId, onSelectNode]);
+    if (map.isStyleLoaded()) {
+      apply();
+    } else {
+      map.once("load", apply);
+    }
+  }, [nodes, selectedNodeId]);
 
   return <div ref={containerRef} className="w-full h-full" />;
 }
