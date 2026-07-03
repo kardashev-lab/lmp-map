@@ -12,9 +12,32 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lmp-map.kardashevlabs.org";
+
 export const metadata: Metadata = {
-  title: "LMP Map | Kardashev Labs",
-  description: "Live nodal electricity prices across US ISOs",
+  metadataBase: new URL(siteUrl),
+  title: "Nodal LMP Price Map | Kardashev Labs",
+  description:
+    "Interactive map of live electricity prices at every pricing node across US ISOs. NYISO, ERCOT, MISO, SPP, and CAISO. Prices update every 60 seconds.",
+  keywords: [
+    "LMP map", "locational marginal price map", "nodal electricity prices",
+    "real-time electricity prices", "NYISO LMP", "ERCOT LMP", "MISO LMP",
+    "CAISO LMP", "SPP LMP", "wholesale electricity prices", "energy price map",
+    "Kardashev Labs",
+  ],
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    title: "Nodal LMP Price Map | Kardashev Labs",
+    description: "Live electricity prices at every pricing node across US ISOs, updated every 60 seconds.",
+    url: siteUrl,
+    siteName: "Kardashev Labs",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Nodal LMP Price Map | Kardashev Labs",
+    description: "Live electricity prices at every pricing node across US ISOs, updated every 60 seconds.",
+  },
 };
 
 export default function RootLayout({
