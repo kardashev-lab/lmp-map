@@ -31,8 +31,9 @@ export default function NodePanel({ node, iso, market, onClose }: Props) {
   }, [node.node_id, iso, market]);
 
   const color = priceColor(node.lmp);
-  const stale =
-    node.ts && Date.now() - new Date(node.ts).getTime() > 10 * 60 * 1000;
+  const ageMin = node.ts
+    ? Math.floor((Date.now() - new Date(node.ts).getTime()) / 60000)
+    : null;
 
   return (
     <div className="absolute top-16 right-3 z-10 w-72 bg-gray-950 border border-gray-800 rounded-lg shadow-2xl overflow-hidden">
@@ -63,16 +64,9 @@ export default function NodePanel({ node, iso, market, onClose }: Props) {
           </span>
           <span className="text-xs text-gray-500 font-mono">{market}</span>
         </div>
-        {stale && (
-          <div className="text-xs text-amber-500 mt-1">Data may be stale</div>
-        )}
-        {node.ts && (
+        {ageMin !== null && (
           <div className="text-xs text-gray-600 mt-0.5 font-mono">
-            {new Date(node.ts).toLocaleTimeString("en-US", {
-              hour: "numeric",
-              minute: "2-digit",
-              hour12: true,
-            })}
+            {ageMin < 1 ? "just now" : `${ageMin} min ago`}
           </div>
         )}
 
