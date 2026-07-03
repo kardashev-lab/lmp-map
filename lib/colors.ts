@@ -5,8 +5,8 @@
  * We use a fixed breakpoint approach rather than purely linear interpolation
  * so the colors stay meaningful even with outlier prices:
  *   price ≤ 0       → #22c55e  (green)
- *   0  – 50         → green → yellow
- *   50 – 150        → yellow → orange
+ *   0 to 50       → green → yellow
+ *   50 to 150     → yellow → orange
  *   150+            → orange → #dc2626 (red)
  */
 export function priceColor(price: number | null): string {

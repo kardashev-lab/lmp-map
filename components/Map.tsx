@@ -142,7 +142,7 @@ export default function Map({ nodes, iso, selectedNodeId, onSelectNode }: Props)
         },
       });
 
-      // Hover via feature state — no DOM manipulation, no re-renders
+      // Hover via feature state, no DOM manipulation, no re-renders
       let hoveredId: string | null = null;
 
       map.on("mouseenter", LAYER_ID, (e) => {
@@ -188,7 +188,7 @@ export default function Map({ nodes, iso, selectedNodeId, onSelectNode }: Props)
     mapRef.current.flyTo({ center: view.center, zoom: view.zoom, duration: 800 });
   }, [iso]);
 
-  // Update source data when nodes or selectedNodeId changes — no markers removed
+  // Update source data when nodes or selectedNodeId changes, no markers removed
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;

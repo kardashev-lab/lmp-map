@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LMP Map — Kardashev Labs",
+  title: "LMP Map | Kardashev Labs",
   description: "Live nodal electricity prices across US ISOs",
 };
 
