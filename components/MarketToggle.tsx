@@ -14,7 +14,7 @@ export default function MarketToggle({ market, onChange }: Props) {
         <button
           key={m}
           onClick={() => onChange(m)}
-          className={`px-3 py-1 transition-colors ${
+          className={`px-3 py-2 min-h-10 transition-colors ${
             market === m
               ? "bg-gray-100 text-gray-900 font-semibold"
               : "bg-transparent text-gray-400 hover:text-white"

@@ -19,7 +19,7 @@ export default function IsoSelector({ selected, onChange }: Props) {
             key={iso}
             onClick={() => onChange(iso)}
             style={active ? { backgroundColor: color, borderColor: color } : { borderColor: color + "60" }}
-            className={`px-3 py-1 rounded text-xs font-mono font-semibold border transition-all ${
+            className={`px-3 py-2 min-h-10 rounded text-xs font-mono font-semibold border transition-all ${
               active
                 ? "text-white shadow-md"
                 : "text-gray-400 bg-transparent hover:text-white"

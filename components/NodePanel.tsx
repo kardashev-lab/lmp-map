@@ -40,17 +40,18 @@ export default function NodePanel({ node, iso, market, onClose }: Props) {
       {/* Header */}
       <div className="flex items-start justify-between p-3 border-b border-gray-800">
         <div className="flex-1 min-w-0">
-          <div className="text-xs text-gray-500 font-mono uppercase tracking-wider">
+          <div className="text-xs text-gray-400 font-mono uppercase tracking-wider">
             {iso} · {node.zone ?? "—"}
           </div>
           <div className="text-sm font-semibold text-white mt-0.5 truncate">
             {node.name ?? node.node_id}
           </div>
-          <div className="text-xs text-gray-500 font-mono">{node.node_id}</div>
+          <div className="text-xs text-gray-400 font-mono">{node.node_id}</div>
         </div>
         <button
           onClick={onClose}
-          className="ml-2 text-gray-600 hover:text-white transition-colors text-lg leading-none"
+          aria-label="Close"
+          className="ml-2 text-gray-400 hover:text-white transition-colors text-lg leading-none"
         >
           ×
         </button>
@@ -62,10 +63,10 @@ export default function NodePanel({ node, iso, market, onClose }: Props) {
           <span className="text-2xl font-bold" style={{ color }}>
             {priceLabel(node.lmp)}
           </span>
-          <span className="text-xs text-gray-500 font-mono">{market}</span>
+          <span className="text-xs text-gray-400 font-mono">{market}</span>
         </div>
         {ageMin !== null && (
-          <div className="text-xs text-gray-600 mt-0.5 font-mono">
+          <div className="text-xs text-gray-400 mt-0.5 font-mono">
             {ageMin < 1 ? "just now" : `${ageMin} min ago`}
           </div>
         )}
@@ -78,7 +79,7 @@ export default function NodePanel({ node, iso, market, onClose }: Props) {
             { label: "Loss", val: node.loss },
           ].map(({ label, val }) => (
             <div key={label} className="bg-gray-900 rounded p-1.5">
-              <div className="text-gray-500 text-[10px]">{label}</div>
+              <div className="text-gray-400 text-[10px]">{label}</div>
               <div className="text-gray-200">
                 {val !== null && val !== undefined ? `$${val.toFixed(2)}` : "—"}
               </div>
@@ -89,7 +90,7 @@ export default function NodePanel({ node, iso, market, onClose }: Props) {
 
       {/* History chart */}
       <div className="p-3">
-        <div className="text-xs text-gray-500 font-mono mb-1">14-day history</div>
+        <div className="text-xs text-gray-400 font-mono mb-1">14-day history</div>
         {loading ? (
           <div className="h-40 flex items-center justify-center text-gray-700 text-xs">
             Loading...

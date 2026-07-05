@@ -25,6 +25,9 @@ export const metadata: Metadata = {
     "CAISO LMP", "SPP LMP", "wholesale electricity prices", "energy price map",
     "Kardashev Labs",
   ],
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -40,6 +43,47 @@ export const metadata: Metadata = {
   },
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Dataset",
+      "@id": `${siteUrl}/#dataset`,
+      name: "Nodal LMP Price Map",
+      description:
+        "Interactive map of live locational marginal prices (LMP) at every pricing node across major US ISOs, updated every 60 seconds.",
+      url: siteUrl,
+      creator: {
+        "@type": "Organization",
+        name: "Kardashev Labs",
+        url: "https://kardashevlabs.org",
+      },
+      keywords: [
+        "LMP map",
+        "locational marginal price",
+        "nodal electricity prices",
+        "wholesale electricity prices",
+        "energy price map",
+      ],
+      license: "https://opensource.org/licenses/MIT",
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${siteUrl}/#website`,
+      url: siteUrl,
+      name: "Nodal LMP Price Map",
+      description:
+        "Interactive map of live electricity prices at every pricing node across US ISOs. NYISO, ERCOT, MISO, SPP, PJM, CAISO, and ISO-NE.",
+      publisher: {
+        "@type": "Organization",
+        name: "Kardashev Labs",
+        url: "https://kardashevlabs.org",
+      },
+      inLanguage: "en-US",
+    },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -50,6 +94,12 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
