@@ -109,6 +109,19 @@ export default function HomeClient({ initialNodes }: HomeClientProps) {
         <PriceLegend />
       </div>
 
+      {/* Python attribution */}
+      <div className="absolute bottom-8 right-3 z-10 bg-gray-950/80 backdrop-blur rounded px-3 py-2 border border-gray-800 text-xs text-gray-400">
+        Use this data in Python:{" "}
+        <a
+          href="https://pypi.org/project/kardashev/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-gray-300 underline"
+        >
+          pip install kardashev
+        </a>
+      </div>
+
       {/* Empty state */}
       {!isLoading && validNodes.length === 0 && !error && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
