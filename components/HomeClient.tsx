@@ -54,7 +54,7 @@ export default function HomeClient({ initialNodes }: HomeClientProps) {
 
   return (
     <main className="relative w-screen h-screen bg-gray-950 overflow-hidden">
-      <h1 className="sr-only">Kardashev Labs — Live LMP Map</h1>
+      <h1 className="sr-only">Kardashev Labs: Live LMP Map</h1>
 
       {/* Top bar */}
       <div className="absolute top-0 left-0 right-0 z-10 flex flex-wrap items-center gap-3 px-3 py-2 bg-gray-950/90 backdrop-blur border-b border-gray-800">
@@ -138,8 +138,8 @@ export default function HomeClient({ initialNodes }: HomeClientProps) {
       <p className="sr-only">
         LMP stands for locational marginal price: the real-time cost of electricity at a specific
         point on the grid, made up of an energy component, a congestion component, and a loss
-        component. This map shows live nodal LMPs across major US ISOs and RTOs — PJM, CAISO,
-        NYISO, MISO, ERCOT, SPP, and ISO-NE — sourced directly from each ISO&apos;s real-time
+        component. This map shows live nodal LMPs across major US ISOs and RTOs (PJM, CAISO,
+        NYISO, MISO, ERCOT, SPP, and ISO-NE), sourced directly from each ISO&apos;s real-time
         and day-ahead wholesale electricity markets. Click any node on the map to inspect its
         current price and price history.
       </p>
